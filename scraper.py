@@ -13,7 +13,7 @@ def get_wait_time(quick=True):
     else:
         return random.uniform(30, 60)
 
-def get_story_info(work_id):
+def get_story_info(work_id, attempt=1):
     url_prefix = 'https://archiveofourown.org/works/'
     url_suffix = '?view_full_work=true'
     # adult_suffix = '&view_adult=true'
@@ -27,7 +27,10 @@ def get_story_info(work_id):
         print('Retry later hit for work_id:', work_id)
         # wait for 5 minutes
         time.sleep(300)
-        return get_story_info(work_id)
+        if attempt < 3:
+            return get_story_info(work_id, attempt=attempt+1)
+        else:
+            return None
     if soup.find('div', class_='system errors error-404 region'):
         return None
 
@@ -222,4 +225,4 @@ if __name__ == '__main__':
             print(story_db)
             print('err')
 
-        time.sleep(get_wait_time(False))
+        time.sleep(get_wait_time())

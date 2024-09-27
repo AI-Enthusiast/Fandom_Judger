@@ -14,3 +14,4 @@ for story_file in story_files:
     if work_id not in story_db['work_id'].values:
         os.remove(story_file)
         print(f'Removed {story_file}')
+
