@@ -200,29 +200,39 @@ if __name__ == '__main__':
     num_of_pages = num_works_int // 20 + 1
     for i in tqdm(range(num_of_pages), desc='Scrapping pages'):
     # for i in range(num_of_pages):
-        old_db = pd.read_csv('output/story_db.csv')
-        if first:
-            work_ids = get_work_ids(all_works_url, soup)
-            first = False
-        else:
-            work_ids = get_work_ids(page_prefix + str(page) + page_suffix)
-            page += 1
+        attempts = 0
+        work_ids = []
+        while len(work_ids) == 0 and attempts < 3:
+            if attempts > 0:
+                time.sleep(300)
+            if first:
+                work_ids = get_work_ids(all_works_url, soup)
+                first = False
+            else:
+
+                random_page= random.randint(1, num_of_pages)
+                work_ids = get_work_ids(page_prefix + str(page) + page_suffix)
+                page += 1
+            attempts += 1
+        if len(work_ids) == 0:
+            print('No work_ids found')
+            break
+
         story_db = multi_scrape_ids(work_ids)
 
-        if len(story_db) == 0:
-            continue
+        if len(story_db) != 0:
+            try:
+                old_db = pd.read_csv('output/story_db.csv')
+                story_db = pd.DataFrame(story_db,
+                                        columns=['work_id', 'title', 'author', 'summary', 'notes', 'rating', 'warnings', 'categories',
+                                                'fandoms', 'relationships', 'characters', 'additional_tags', 'language', 'published',
+                                                'word_count', 'chapter_count', 'comment_count', 'kudos_count', 'bookmarks_count',
+                                                'hits_count'])
+                story_db = pd.concat([old_db, story_db])
+                story_db.to_csv('output/story_db.csv', index=False)
 
-        try:
-            story_db = pd.DataFrame(story_db,
-                                    columns=['work_id', 'title', 'author', 'summary', 'notes', 'rating', 'warnings', 'categories',
-                                            'fandoms', 'relationships', 'characters', 'additional_tags', 'language', 'published',
-                                            'word_count', 'chapter_count', 'comment_count', 'kudos_count', 'bookmarks_count',
-                                            'hits_count'])
-            story_db = pd.concat([old_db, story_db])
-            story_db.to_csv('output/story_db.csv', index=False)
-
-        except ValueError:
-            print(story_db)
-            print('err')
+            except ValueError:
+                print(story_db)
+                print('err')
 
         time.sleep(get_wait_time())
