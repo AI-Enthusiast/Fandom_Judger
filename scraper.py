@@ -34,6 +34,9 @@ def get_story_info(work_id):
     warnings = soup.find('dd', class_='warning tags').text
     language = soup.find('dd', class_='language').text
 
+    warnings = warnings.replace('\n\n', '')
+    language = language.replace('\n', '')
+
     # if warnings is Underage or language is english, do not get the story
     if warnings == 'Underage' or language != 'English':
         story = ''
@@ -160,7 +163,8 @@ def multi_scrape_ids(work_ids):
     story_db = []
     with ThreadPoolExecutor() as executor:
         futures = {executor.submit(process_work_id, work_id): work_id for work_id in work_ids}
-        for future in tqdm(as_completed(futures), total=len(work_ids), desc="Scrapping works"):
+        # for future in tqdm(as_completed(futures), total=len(work_ids), desc="Scrapping works"):
+        for future in as_completed(futures):
             story_db.append(future.result())
     return story_db
 
@@ -191,7 +195,8 @@ if __name__ == '__main__':
     num_works = num_works.split(' ')[0]
     num_works_int = int(num_works.replace(',', ''))
     num_of_pages = num_works_int // 20 + 1
-    for i in range(num_of_pages):
+    for i in tqdm(range(num_of_pages), desc='Scrapping pages'):
+    # for i in range(num_of_pages):
         old_db = pd.read_csv('output/story_db.csv')
         if first:
             work_ids = get_work_ids(all_works_url, soup)
