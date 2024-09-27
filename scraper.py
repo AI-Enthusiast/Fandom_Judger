@@ -7,17 +7,19 @@ import random
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+
 def get_wait_time(quick=True):
     if quick:
         return random.uniform(19, 31)
     else:
         return random.uniform(30, 60)
 
+
 def get_story_info(work_id, attempt=1):
     url_prefix = 'https://archiveofourown.org/works/'
     url_suffix = '?view_full_work=true'
-    # adult_suffix = '&view_adult=true'
-    url = url_prefix + str(work_id) + url_suffix
+    adult_suffix = '&view_adult=true'
+    url = url_prefix + str(work_id) + url_suffix + adult_suffix
     raw = requests.get(url)
     bad_count = 0
     if raw.status_code != 200 or raw.url == 'https://archiveofourown.org/users/login?restricted=true':
@@ -28,7 +30,7 @@ def get_story_info(work_id, attempt=1):
         # wait for 5 minutes
         time.sleep(300)
         if attempt < 3:
-            return get_story_info(work_id, attempt=attempt+1)
+            return get_story_info(work_id, attempt=attempt + 1)
         else:
             return None
     if soup.find('div', class_='system errors error-404 region'):
@@ -62,7 +64,7 @@ def get_story_info(work_id, attempt=1):
         author = None
         # print('Error with work_id:', work_id)
         bad_count += 1
-    if bad_count > 2: # if there are too many errors, we skip this work
+    if bad_count > 2:  # if there are too many errors, we skip this work
         print('Error with work_id:', work_id)
         return None
     try:
@@ -74,7 +76,6 @@ def get_story_info(work_id, attempt=1):
     except AttributeError:
         notes = None
     rating = soup.find('dd', class_='rating tags').text
-
 
     try:
         categories = soup.find('dd', class_='category tags').text
@@ -122,6 +123,7 @@ def get_story_info(work_id, attempt=1):
             additional_tags, language, published, word_count, chapter_count, comment_count, kudos_count,
             bookmarks_count, hits_count], story
 
+
 def process_work_id(work_id):
     story_info = get_story_info(work_id)
     if story_info:
@@ -129,38 +131,9 @@ def process_work_id(work_id):
             f.write(story_info[1])
         return story_info[0]
     else:
-        return [work_id, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
+        return [work_id, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None,
+                None, None]
 
-# def rand_scrape(n = 5000, max = 160000000, seed = 42):
-#     random.seed(seed)
-#     work_ids = random.sample(range(1, max), n)
-#
-#     old_story_db = pd.read_csv('output/story_db.csv')
-#
-#     work_ids = [i for i in work_ids if i not in old_story_db['work_id'].values]
-#
-#     story_db = []
-#
-#     with ThreadPoolExecutor() as executor:
-#         futures = {executor.submit(process_work_id, work_id): work_id for work_id in work_ids}
-#         for future in tqdm(as_completed(futures), total=len(work_ids), desc="Scrapping works"):
-#             story_db.append(future.result())
-#
-#     # print(story_db)
-#     if len(story_db) == 0:
-#         return
-#     try:
-#         story_db = pd.DataFrame(story_db,
-#                                 columns=['work_id', 'title', 'author', 'summary', 'notes', 'rating', 'warnings', 'categories',
-#                                          'fandoms', 'relationships', 'characters', 'additional_tags', 'language', 'published',
-#                                          'word_count', 'chapter_count', 'comment_count', 'kudos_count', 'bookmarks_count',
-#                                          'hits_count'])
-#         story_db = pd.concat([old_story_db, story_db])
-#
-#         story_db.to_csv('output/story_db.csv', index=False)
-#     except ValueError:
-#         print(story_db)
-#         print('err')
 
 def multi_scrape_ids(work_ids):
     story_db = []
@@ -171,13 +144,15 @@ def multi_scrape_ids(work_ids):
             story_db.append(future.result())
     return story_db
 
-def get_work_ids(url, soup = None):
+
+def get_work_ids(url, soup=None):
     if soup is None:
         raw = requests.get(url)
         soup = bs(raw.text, 'html.parser')
     works = soup.find_all('li', class_='work')
     work_ids = [work.find('a')['href'].split('/')[-1] for work in works]
     return work_ids
+
 
 if __name__ == '__main__':
     # for i in range(10):
@@ -199,7 +174,7 @@ if __name__ == '__main__':
     num_works_int = int(num_works.replace(',', ''))
     num_of_pages = num_works_int // 20 + 1
     for i in tqdm(range(num_of_pages), desc='Scrapping pages'):
-    # for i in range(num_of_pages):
+        # for i in range(num_of_pages):
         attempts = 0
         work_ids = []
         while len(work_ids) == 0 and attempts < 3:
@@ -210,7 +185,7 @@ if __name__ == '__main__':
                 first = False
             else:
 
-                random_page= random.randint(1, num_of_pages)
+                random_page = random.randint(1, num_of_pages)
                 work_ids = get_work_ids(page_prefix + str(page) + page_suffix)
                 page += 1
             attempts += 1
@@ -224,10 +199,13 @@ if __name__ == '__main__':
             try:
                 old_db = pd.read_csv('output/story_db.csv')
                 story_db = pd.DataFrame(story_db,
-                                        columns=['work_id', 'title', 'author', 'summary', 'notes', 'rating', 'warnings', 'categories',
-                                                'fandoms', 'relationships', 'characters', 'additional_tags', 'language', 'published',
-                                                'word_count', 'chapter_count', 'comment_count', 'kudos_count', 'bookmarks_count',
-                                                'hits_count'])
+                                        columns=['work_id', 'title', 'author', 'summary', 'notes', 'rating', 'warnings',
+                                                 'categories',
+                                                 'fandoms', 'relationships', 'characters', 'additional_tags',
+                                                 'language', 'published',
+                                                 'word_count', 'chapter_count', 'comment_count', 'kudos_count',
+                                                 'bookmarks_count',
+                                                 'hits_count'])
                 story_db = pd.concat([old_db, story_db])
                 story_db.to_csv('output/story_db.csv', index=False)
 
