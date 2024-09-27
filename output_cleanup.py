@@ -15,3 +15,11 @@ for story_file in story_files:
         os.remove(story_file)
         print(f'Removed {story_file}')
 
+# in the story_db drop all rows where everything but work_id is None
+story_db = story_db.dropna(subset=['title', 'author', 'summary', 'notes', 'rating', 'warnings', 'categories', 'fandoms', 'relationships', 'characters', 'additional_tags', 'language', 'published', 'word_count', 'chapter_count', 'comment_count', 'kudos_count', 'bookmarks_count', 'hits_count'])
+
+# order the story_db by hits_count then deduplicate by work_id
+story_db = story_db.sort_values('hits_count', ascending=False).drop_duplicates('work_id')
+
+# write the story_db back to a csv
+story_db.to_csv('output/story_db.csv', index=False)
