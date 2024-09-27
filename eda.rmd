@@ -1,0 +1,15 @@
+```{r}
+library(tidyverse)
+library(ggplot2)
+```
+```{r}
+# read in the data output/store_db.csv
+store_db = read_csv("output/story_db.csv")
+```
+```{r}
+colnames(store_db)
+```
+```{r}
+# create a hist of hits_count
+store_db %>% ggplot(aes(hits_count)) + geom_histogram()
+```
