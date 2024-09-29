@@ -21,14 +21,12 @@ def clean_story_db(story_db):
 def save_story_db(story_db, file_path):
     story_db.to_csv(file_path, index=False)
 
-def clean_files(story_db_path, story_dir):
+def clean_files(story_db_path = 'output/story_db.csv', story_dir = 'output/stories'):
     story_db = read_story_db(story_db_path)
-    remove_files_not_in_db(story_db, story_dir)
     story_db = clean_story_db(story_db)
+    remove_files_not_in_db(story_db, story_dir)
     save_story_db(story_db, story_db_path)
 
 
 if __name__ == '__main__':
-    story_db_path = 'output/story_db.csv'
-    story_dir = 'output/stories'
-    clean_files(story_db_path, story_dir)
+    clean_files()
