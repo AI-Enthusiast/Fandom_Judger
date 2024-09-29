@@ -1,5 +1,5 @@
 import time
-
+import output_cleanup
 import requests
 from bs4 import BeautifulSoup as bs
 import pandas as pd
@@ -217,3 +217,7 @@ if __name__ == '__main__':
                 print('err')
 
         time.sleep(get_wait_time())
+
+    story_db_path = 'output/story_db.csv'
+    story_dir = 'output/stories'
+    output_cleanup.clean_files(story_db_path, story_dir)
