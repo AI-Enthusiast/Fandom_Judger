@@ -165,6 +165,9 @@ if __name__ == '__main__':
     page_prefix = 'https://archiveofourown.org/works/search?commit=Search&page='
     page_suffix = '&work_search[bookmarks_count]=&work_search[character_names]=&work_search[comments_count]=&work_search[complete]=&work_search[creators]=&work_search[crossover]=&work_search[fandom_names]=&work_search[freeform_names]=&work_search[hits]=&work_search[kudos_count]=&work_search[language_id]=&work_search[query]=&work_search[rating_ids]=&work_search[relationship_names]=&work_search[revised_at]=&work_search[single_chapter]=0&work_search[sort_column]=hits&work_search[sort_direction]=desc&work_search[title]=&work_search[word_count]='
     page = 2
+    START = 750
+    if START > page:
+        page = START
     first = True
     # get the number of works
     raw = requests.get(all_works_url)
@@ -173,7 +176,7 @@ if __name__ == '__main__':
     num_works = num_works.split(' ')[0]
     num_works_int = int(num_works.replace(',', ''))
     num_of_pages = num_works_int // 20 + 1
-    for i in tqdm(range(num_of_pages), desc='Scrapping pages'):
+    for i in tqdm(range(num_of_pages), desc='Scrapping pages', total=num_of_pages - START):
         # for i in range(num_of_pages):
         attempts = 0
         work_ids = []
