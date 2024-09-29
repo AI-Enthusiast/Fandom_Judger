@@ -1,6 +1,7 @@
 ```{r}
 library(tidyverse)
 library(ggplot2)
+library(skimr)
 ```
 ```{r}
 # read in the data output/store_db.csv
@@ -8,6 +9,9 @@ store_db = read_csv("output/story_db.csv")
 ```
 ```{r}
 colnames(store_db)
+```
+```{r}
+skim(store_db)
 ```
 ```{r}
 # create a hist of hits_count
