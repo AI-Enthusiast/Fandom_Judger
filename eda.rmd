@@ -14,6 +14,34 @@ colnames(store_db)
 skim(store_db)
 ```
 ```{r}
+head(store_db)
+```
+```{r}
 # create a hist of hits_count
 store_db %>% ggplot(aes(hits_count)) + geom_histogram()
+```
+```{r}
+# do a point plot of hits_count by kudos_count
+store_db %>% ggplot(aes(kudos_count, hits_count)) + geom_point()
+```
+```{r}
+# color by bookmark_count
+store_db %>% ggplot(aes(kudos_count, hits_count, color = bookmarks_count)) + geom_point()
+```
+
+
+```{r}
+# draw the mean line
+store_db %>% ggplot(aes(kudos_count, hits_count, color = bookmarks_count)) + geom_point() + geom_smooth()
+```
+
+filter out the outliers
+```{r}
+store_db %>% filter(hits_count < 10000) %>% ggplot(aes(kudos_count, hits_count, color = bookmarks_count)) + geom_point() + geom_smooth()
+```
+
+#
+```{r}
+# filter out those with more than 800k hits
+most = store_db %>% filter(hits_count > 800000) %>% head()
 ```
